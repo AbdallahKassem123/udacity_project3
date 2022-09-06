@@ -238,10 +238,11 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            npm cache clean
-            npm run clean
+            npm cache clean --force
+            npm run clean --force
             rm -rf node_modules
             npm install
+            npm config set fund false --global
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration results to kvdb.io
