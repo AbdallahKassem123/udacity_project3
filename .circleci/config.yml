@@ -12,10 +12,10 @@ commands:
             sudo ./aws/install
 
   install_ansible:
-    description: Install Ansible
+    description: Install Ansible v2
     steps:
       - run:
-          name: Install Ansible
+          name: Install Ansible v2
           command: |
             sudo apt update
             sudo apt install software-properties-common -y
@@ -189,7 +189,7 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7" \
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=udacity
 
