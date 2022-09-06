@@ -233,29 +233,34 @@ jobs:
       - image: cimg/node:13.8.0
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/
       - install_awscli
       - run:
+         name: Install AWS CLI dependencies
+         working_directory: /tmp
+         command: |
+            sudo apt-get update && sudo apt-get install -yy less
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - run:
           name: Run migrations
+          working_directory: ./backend
           command: |
-            cd backend
-            npm install
-            npm config set fund false --global
-            npm run migrations > migrations_dump.txt
-            npm audit fix --force --audit-level=critical
-            npm audit fix --force --audit-level=critical
-            npm audit fix --force --audit-level=critical
-            npm audit fix --force --audit-level=critical
-            npm audit fix --force --audit-level=critical
+            npm run migrations > migration_status
+            
       - run:
           name: Send migration results to kvdb.io
           command: |
-             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
-             then
+            if grep -q "has been executed successfully" migration_status
+            then
                curl https://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
                curl --insecure https://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7}
                echo "test"
              fi 
-               curl -k https://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '5'
+               echo "WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}"
+               url -k https://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '5'
                curl --insecure https://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
       - destroy-environment
       - revert-migrations
