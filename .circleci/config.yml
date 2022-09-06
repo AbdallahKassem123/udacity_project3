@@ -22,17 +22,17 @@ commands:
             sudo add-apt-repository --yes --update ppa:ansible/ansible
             sudo apt install ansible -y
 
-  install_nodejs:
-    description: Install Node.js 13
-    steps:
-      - run:
-          name: Install Node.js 13
-          command: |
-            # Install Node.js LTS version as our base Node.js version
-            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-            sudo apt install -y nodejs
-            # Use n version manager to use Node.js v13.8.0
-            sudo npm install --global n
+  # install_nodejs:
+  #   description: Install Node.js 13
+  #   steps:
+  #     - run:
+  #         name: Install Node.js 13
+  #         command: |
+  #           # Install Node.js LTS version as our base Node.js version
+  #           curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+  #           sudo apt install -y nodejs
+  #           # Use n version manager to use Node.js v13.8.0
+  #           sudo npm install --global n
             sudo n 13.8.0
 
   destroy-environment:
@@ -120,7 +120,7 @@ jobs:
           command: |
             cd frontend
             npm install
-            npm test      
+            npm run test      
      
   test-backend:
     docker:
@@ -134,7 +134,7 @@ jobs:
           command: |
             cd backend
             npm install
-            npm test   
+            npm run test   
 
   scan-frontend:
      docker:
@@ -162,7 +162,6 @@ jobs:
       - run:
           name: back-end scan
           command: |
-            # Your code here
             cd backend
             npm install
             npm audit fix --force --audit-level=critical
@@ -230,7 +229,7 @@ jobs:
 
   run-migrations:
     docker:
-      - image: cimg/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - install_awscli
@@ -238,6 +237,7 @@ jobs:
           name: Run migrations
           command: |
             cd backend
+            npm install
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration results to kvdb.io
